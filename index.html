@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Main</title>
+  <title>ElmCanvas</title>
   <style>body { padding: 0; margin: 0; }</style>
 </head>
 
@@ -5194,44 +5194,24 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Main$update = F2(
+var $author$project$ElmCanvas$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'AddPoint':
-				var _v1 = $elm$core$List$head(model.coords);
-				if (_v1.$ === 'Just') {
-					var coord = _v1.a;
-					return _Utils_update(
-						model,
-						{
-							coords: _Utils_ap(
-								_List_fromArray(
-									[
-										{x: coord.x + 10.0, y: coord.y + 10.0}
-									]),
-								model.coords)
-						});
-				} else {
-					return model;
-				}
-			case 'ResetPoint':
+				var x = msg.a;
+				var y = msg.b;
 				return _Utils_update(
 					model,
 					{
-						coords: _List_fromArray(
-							[
-								{x: 0.0, y: 0.0}
-							])
+						coords: A2(
+							$elm$core$List$cons,
+							{color: model.color, size: model.penSize, x: x + 10, y: y - 78},
+							model.coords)
 					});
+			case 'ResetPoint':
+				return _Utils_update(
+					model,
+					{coords: _List_Nil});
 			case 'ChangeColor':
 				var color = msg.a;
 				return _Utils_update(
@@ -5247,13 +5227,16 @@ var $author$project$Main$update = F2(
 					{penSize: model.penSize - 1});
 		}
 	});
-var $author$project$Main$AddPoint = {$: 'AddPoint'};
-var $author$project$Main$ChangeColor = function (a) {
+var $author$project$ElmCanvas$AddPoint = F2(
+	function (a, b) {
+		return {$: 'AddPoint', a: a, b: b};
+	});
+var $author$project$ElmCanvas$ChangeColor = function (a) {
 	return {$: 'ChangeColor', a: a};
 };
-var $author$project$Main$MinusPenSize = {$: 'MinusPenSize'};
-var $author$project$Main$PlusPenSize = {$: 'PlusPenSize'};
-var $author$project$Main$ResetPoint = {$: 'ResetPoint'};
+var $author$project$ElmCanvas$MinusPenSize = {$: 'MinusPenSize'};
+var $author$project$ElmCanvas$PlusPenSize = {$: 'PlusPenSize'};
+var $author$project$ElmCanvas$ResetPoint = {$: 'ResetPoint'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$append = F2(
 	function (xs, ys) {
@@ -5268,6 +5251,7 @@ var $elm$core$List$concat = function (lists) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -5286,6 +5270,18 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $author$project$ElmCanvas$onMouseDown = function (_function) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mousedown',
+		A3(
+			$elm$json$Json$Decode$map2,
+			_function,
+			A2($elm$json$Json$Decode$field, 'clientX', $elm$json$Json$Decode$float),
+			A2($elm$json$Json$Decode$field, 'clientY', $elm$json$Json$Decode$float)));
+};
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
@@ -5299,28 +5295,27 @@ var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var $author$project$Main$viewPoint = F3(
-	function (coord, color, penSize) {
-		return A2(
-			$elm$svg$Svg$circle,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$cx(
-					$elm$core$String$fromFloat(coord.x)),
-					$elm$svg$Svg$Attributes$cy(
-					$elm$core$String$fromFloat(coord.y)),
-					$elm$svg$Svg$Attributes$r(
-					$elm$core$String$fromInt(penSize)),
-					$elm$svg$Svg$Attributes$fill(color),
-					$elm$svg$Svg$Attributes$stroke(color),
-					$elm$svg$Svg$Attributes$strokeWidth('0')
-				]),
-			_List_Nil);
-	});
+var $author$project$ElmCanvas$viewPoint = function (coord) {
+	return A2(
+		$elm$svg$Svg$circle,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$cx(
+				$elm$core$String$fromFloat(coord.x)),
+				$elm$svg$Svg$Attributes$cy(
+				$elm$core$String$fromFloat(coord.y)),
+				$elm$svg$Svg$Attributes$r(
+				$elm$core$String$fromInt(coord.size)),
+				$elm$svg$Svg$Attributes$fill(coord.color),
+				$elm$svg$Svg$Attributes$stroke(coord.color),
+				$elm$svg$Svg$Attributes$strokeWidth('0')
+			]),
+		_List_Nil);
+};
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $author$project$Main$view = function (model) {
+var $author$project$ElmCanvas$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -5332,19 +5327,19 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$div,
+						$elm$html$Html$h1,
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('ちょっぴり不思議なお絵描きキャンバス')
+								$elm$html$Html$text('「千手観音キャンバス」')
 							])),
 						A2(
 						$elm$svg$Svg$svg,
 						_List_fromArray(
 							[
-								$elm$svg$Svg$Attributes$viewBox('0 0 770 770'),
-								$elm$svg$Svg$Attributes$width('750'),
-								$elm$svg$Svg$Attributes$height('750')
+								$elm$svg$Svg$Attributes$viewBox('0 0 620 620'),
+								$elm$svg$Svg$Attributes$width('605'),
+								$elm$svg$Svg$Attributes$height('605')
 							]),
 						$elm$core$List$concat(
 							_List_fromArray(
@@ -5357,19 +5352,19 @@ var $author$project$Main$view = function (model) {
 											[
 												$elm$svg$Svg$Attributes$x('10'),
 												$elm$svg$Svg$Attributes$y('10'),
-												$elm$svg$Svg$Attributes$width('750'),
-												$elm$svg$Svg$Attributes$height('750'),
+												$elm$svg$Svg$Attributes$width('600'),
+												$elm$svg$Svg$Attributes$height('600'),
 												$elm$svg$Svg$Attributes$fill('white'),
 												$elm$svg$Svg$Attributes$stroke('black'),
 												$elm$svg$Svg$Attributes$strokeWidth('2'),
-												$elm$html$Html$Events$onClick($author$project$Main$AddPoint)
+												$author$project$ElmCanvas$onMouseDown($author$project$ElmCanvas$AddPoint)
 											]),
 										_List_Nil)
 									]),
 									A2(
 									$elm$core$List$map,
 									function (coord) {
-										return A3($author$project$Main$viewPoint, coord, model.color, model.penSize);
+										return $author$project$ElmCanvas$viewPoint(coord);
 									},
 									model.coords)
 								]))),
@@ -5382,7 +5377,7 @@ var $author$project$Main$view = function (model) {
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Main$ResetPoint)
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$ResetPoint)
 									]),
 								_List_fromArray(
 									[
@@ -5399,7 +5394,7 @@ var $author$project$Main$view = function (model) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('black'))
+										$author$project$ElmCanvas$ChangeColor('black'))
 									]),
 								_List_fromArray(
 									[
@@ -5410,7 +5405,7 @@ var $author$project$Main$view = function (model) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('red'))
+										$author$project$ElmCanvas$ChangeColor('red'))
 									]),
 								_List_fromArray(
 									[
@@ -5421,7 +5416,7 @@ var $author$project$Main$view = function (model) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('blue'))
+										$author$project$ElmCanvas$ChangeColor('blue'))
 									]),
 								_List_fromArray(
 									[
@@ -5432,7 +5427,7 @@ var $author$project$Main$view = function (model) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('green'))
+										$author$project$ElmCanvas$ChangeColor('green'))
 									]),
 								_List_fromArray(
 									[
@@ -5448,7 +5443,7 @@ var $author$project$Main$view = function (model) {
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Main$MinusPenSize)
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$MinusPenSize)
 									]),
 								_List_fromArray(
 									[
@@ -5458,7 +5453,7 @@ var $author$project$Main$view = function (model) {
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Main$PlusPenSize)
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$PlusPenSize)
 									]),
 								_List_fromArray(
 									[
@@ -5468,23 +5463,16 @@ var $author$project$Main$view = function (model) {
 					]))
 			]));
 };
-var $author$project$Main$main = $elm$browser$Browser$sandbox(
+var $author$project$ElmCanvas$main = $elm$browser$Browser$sandbox(
 	{
-		init: {
-			color: 'black',
-			coords: _List_fromArray(
-				[
-					{x: 0.0, y: 0.0}
-				]),
-			penSize: 3
-		},
-		update: $author$project$Main$update,
-		view: $author$project$Main$view
+		init: {color: 'black', coords: _List_Nil, penSize: 3},
+		update: $author$project$ElmCanvas$update,
+		view: $author$project$ElmCanvas$view
 	});
-_Platform_export({'Main':{'init':$author$project$Main$main(
+_Platform_export({'ElmCanvas':{'init':$author$project$ElmCanvas$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
 
-  var app = Elm.Main.init({ node: document.getElementById("elm") });
+  var app = Elm.ElmCanvas.init({ node: document.getElementById("elm") });
 }
 catch (e)
 {

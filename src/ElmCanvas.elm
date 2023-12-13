@@ -1,21 +1,24 @@
-module Main exposing (main)
+module ElmCanvas exposing (main)
 
 import Browser exposing (sandbox)
-import Browser.Events exposing (onMouseMove)
+import Browser.Events exposing (onMouseDown)
 import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick, onMouseDown, onMouseOut, onMouseOver)
+import Html.Events exposing (on, onClick, onMouseOut, onMouseOver)
+import Json.Decode exposing (Decoder, field, float, int, map2)
 import Svg exposing (Svg, circle, rect, svg)
 import Svg.Attributes exposing (cx, cy, fill, height, r, stroke, strokeWidth, viewBox, width, x, y)
 
 
 main : Program () Model Msg
 main =
-    sandbox { init = { coords = [ { x = 0.0, y = 0.0 } ], color = "black", penSize = 3 }, update = update, view = view }
+    Browser.sandbox { init = { coords = [], color = "black", penSize = 3 }, update = update, view = view }
 
 
 type alias CoordModel =
     { x : Float
     , y : Float
+    , color : String
+    , size : Int
     }
 
 
@@ -27,7 +30,7 @@ type alias Model =
 
 
 type Msg
-    = AddPoint
+    = AddPoint Float Float
     | ResetPoint
     | ChangeColor String
     | PlusPenSize
@@ -37,16 +40,11 @@ type Msg
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        AddPoint ->
-            case List.head model.coords of
-                Just coord ->
-                    { model | coords = [ { x = coord.x + 10.0, y = coord.y + 10.0 } ] ++ model.coords }
-
-                Nothing ->
-                    model
+        AddPoint x y ->
+            { model | coords = { x = x + 10, y = y - 78, color = model.color, size = model.penSize } :: model.coords }
 
         ResetPoint ->
-            { model | coords = [ { x = 0.0, y = 0.0 } ] }
+            { model | coords = [] }
 
         ChangeColor color ->
             { model | color = color }
@@ -58,13 +56,17 @@ update msg model =
             { model | penSize = model.penSize - 1 }
 
 
-viewPoint coord color penSize =
+onMouseDown function =
+    on "mousedown" (map2 function (field "clientX" float) (field "clientY" float))
+
+
+viewPoint coord =
     circle
         [ cx (String.fromFloat coord.x)
         , cy (String.fromFloat coord.y)
-        , r (String.fromInt penSize)
-        , fill color
-        , stroke color
+        , r (String.fromInt coord.size)
+        , fill coord.color
+        , stroke coord.color
         , strokeWidth "0"
         ]
         []
@@ -76,26 +78,26 @@ view model =
         []
         [ div
             []
-            [ div [] [ text "ちょっぴり不思議なお絵描きキャンバス" ]
+            [ Html.h1 [] [ text "「千手観音キャンバス」" ]
             , svg
-                [ viewBox "0 0 770 770"
-                , width "750"
-                , height "750"
+                [ viewBox "0 0 620 620"
+                , width "605"
+                , height "605"
                 ]
                 (List.concat
                     [ [ rect
                             [ x "10"
                             , y "10"
-                            , width "750"
-                            , height "750"
+                            , width "600"
+                            , height "600"
                             , fill "white"
                             , stroke "black"
                             , strokeWidth "2"
-                            , onClick AddPoint
+                            , onMouseDown AddPoint
                             ]
                             []
                       ]
-                    , List.map (\coord -> viewPoint coord model.color model.penSize) model.coords
+                    , List.map (\coord -> viewPoint coord) model.coords
                     ]
                 )
             , div
