@@ -119,8 +119,9 @@ rotateCoord x y penNum =
     { x = rotate_x, y = rotate_y }
 
 
+viewPoint : PointModel -> Svg Msg
 viewPoint point =
-    if point.coord.x > 10 && point.coord.x < 610 && point.coord.y > 10 && point.coord.y < 610 then
+    if point.coord.x - toFloat point.size > 10 && point.coord.x + toFloat point.size < 610 && point.coord.y - toFloat point.size > 10 && point.coord.y + toFloat point.size < 610 then
         circle
             [ cx (String.fromFloat point.coord.x)
             , cy (String.fromFloat point.coord.y)

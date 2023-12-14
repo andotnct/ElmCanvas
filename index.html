@@ -5363,7 +5363,7 @@ var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
 var $author$project$ElmCanvas$viewPoint = function (point) {
-	return ((point.coord.x > 10) && ((point.coord.x < 610) && ((point.coord.y > 10) && (point.coord.y < 610)))) ? A2(
+	return (((point.coord.x - point.size) > 10) && (((point.coord.x + point.size) < 610) && (((point.coord.y - point.size) > 10) && ((point.coord.y + point.size) < 610)))) ? A2(
 		$elm$svg$Svg$circle,
 		_List_fromArray(
 			[
