@@ -11,7 +11,7 @@ import Svg.Attributes exposing (cx, cy, fill, height, r, stroke, strokeWidth, vi
 
 main : Program () Model Msg
 main =
-    Browser.sandbox { init = { points = [], color = "black", penSize = 3, penNum = 5, isClick = False }, update = update, view = view }
+    Browser.sandbox { init = { points = [], color = "black", penSize = 3, penNum = 10, isClick = False }, update = update, view = view }
 
 
 type alias CoordModel =
