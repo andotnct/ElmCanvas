@@ -200,7 +200,7 @@ view model =
                 ]
             , div
                 []
-                [ text "STANDARD COLOR "
+                [ text "ペンの色 "
                 , button
                     [ onClick (ChangeColor "black") ]
                     [ text "BLACK" ]
