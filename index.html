@@ -5200,8 +5200,8 @@ var $elm$core$Basics$sin = _Basics_sin;
 var $author$project$ElmCanvas$rotateCoord = F3(
 	function (x, y, penNum) {
 		var rad = (2 * $elm$core$Basics$pi) / penNum;
-		var rotate_x = ((((x * $elm$core$Basics$cos(rad)) - (y * $elm$core$Basics$sin(rad))) + 300) - (300 * $elm$core$Basics$cos(rad))) + (300 * $elm$core$Basics$sin(rad));
-		var rotate_y = ((((x * $elm$core$Basics$sin(rad)) + (y * $elm$core$Basics$cos(rad))) + 300) - (300 * $elm$core$Basics$sin(rad))) - (300 * $elm$core$Basics$cos(rad));
+		var rotate_x = ((((x * $elm$core$Basics$cos(rad)) - (y * $elm$core$Basics$sin(rad))) + 310) - (310 * $elm$core$Basics$cos(rad))) + (310 * $elm$core$Basics$sin(rad));
+		var rotate_y = ((((x * $elm$core$Basics$sin(rad)) + (y * $elm$core$Basics$cos(rad))) + 310) - (310 * $elm$core$Basics$sin(rad))) - (310 * $elm$core$Basics$cos(rad));
 		return {x: rotate_x, y: rotate_y};
 	});
 var $author$project$ElmCanvas$addCoords = F6(
@@ -5240,7 +5240,7 @@ var $author$project$ElmCanvas$update = F2(
 					{
 						points: _Utils_ap(
 							model.points,
-							A6($author$project$ElmCanvas$addCoords, model.penNum, model.penNum, x + 10, y - 78, model.color, model.penSize))
+							A6($author$project$ElmCanvas$addCoords, model.penNum, model.penNum, x + 10, y - 80, model.color, model.penSize))
 					}) : model;
 			case 'ResetPoint':
 				return _Utils_update(
@@ -5267,7 +5267,7 @@ var $author$project$ElmCanvas$update = F2(
 				return (model.penNum > 1) ? _Utils_update(
 					model,
 					{penNum: model.penNum - 1}) : model;
-			case 'EnablePen':
+			case 'EnableIsClick':
 				return _Utils_update(
 					model,
 					{isClick: true});
@@ -5284,8 +5284,8 @@ var $author$project$ElmCanvas$AddPoint = F2(
 var $author$project$ElmCanvas$ChangeColor = function (a) {
 	return {$: 'ChangeColor', a: a};
 };
-var $author$project$ElmCanvas$DisablePen = {$: 'DisablePen'};
-var $author$project$ElmCanvas$EnablePen = {$: 'EnablePen'};
+var $author$project$ElmCanvas$DisableIsClick = {$: 'DisableIsClick'};
+var $author$project$ElmCanvas$EnableIsClick = {$: 'EnableIsClick'};
 var $author$project$ElmCanvas$MinusPenNum = {$: 'MinusPenNum'};
 var $author$project$ElmCanvas$MinusPenSize = {$: 'MinusPenSize'};
 var $author$project$ElmCanvas$PlusPenNum = {$: 'PlusPenNum'};
@@ -5388,7 +5388,8 @@ var $author$project$ElmCanvas$viewPoint = function (point) {
 				$elm$svg$Svg$Attributes$r('0'),
 				$elm$svg$Svg$Attributes$fill(point.color),
 				$elm$svg$Svg$Attributes$stroke(point.color),
-				$elm$svg$Svg$Attributes$strokeWidth('0')
+				$elm$svg$Svg$Attributes$strokeWidth('0'),
+				$elm$html$Html$Events$onMouseUp($author$project$ElmCanvas$DisableIsClick)
 			]),
 		_List_Nil);
 };
@@ -5402,7 +5403,10 @@ var $author$project$ElmCanvas$view = function (model) {
 			[
 				A2(
 				$elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onMouseUp($author$project$ElmCanvas$DisableIsClick)
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -5437,8 +5441,8 @@ var $author$project$ElmCanvas$view = function (model) {
 												$elm$svg$Svg$Attributes$stroke('black'),
 												$elm$svg$Svg$Attributes$strokeWidth('2'),
 												$author$project$ElmCanvas$onMouseMove($author$project$ElmCanvas$AddPoint),
-												$elm$html$Html$Events$onMouseDown($author$project$ElmCanvas$EnablePen),
-												$elm$html$Html$Events$onMouseUp($author$project$ElmCanvas$DisablePen)
+												$elm$html$Html$Events$onMouseDown($author$project$ElmCanvas$EnableIsClick),
+												$elm$html$Html$Events$onMouseUp($author$project$ElmCanvas$DisableIsClick)
 											]),
 										_List_Nil)
 									]),
@@ -5454,7 +5458,7 @@ var $author$project$ElmCanvas$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('penNum '),
+								$elm$html$Html$text('同時に描画する線の数 '),
 								A2(
 								$elm$html$Html$button,
 								_List_fromArray(
@@ -5483,7 +5487,7 @@ var $author$project$ElmCanvas$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('penSize '),
+								$elm$html$Html$text('ペンの太さ '),
 								A2(
 								$elm$html$Html$button,
 								_List_fromArray(
@@ -5512,6 +5516,7 @@ var $author$project$ElmCanvas$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
+								$elm$html$Html$text('STANDARD COLOR '),
 								A2(
 								$elm$html$Html$button,
 								_List_fromArray(
@@ -5555,6 +5560,50 @@ var $author$project$ElmCanvas$view = function (model) {
 								_List_fromArray(
 									[
 										$elm$html$Html$text('GREEN')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$ElmCanvas$ChangeColor('yellow'))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('YELLOW')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$ElmCanvas$ChangeColor('orange'))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('ORANGE')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$ElmCanvas$ChangeColor('purple'))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('PURPLE')
+									])),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$ElmCanvas$ChangeColor('brown'))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('BROWN')
 									]))
 							])),
 						A2(
@@ -5570,7 +5619,7 @@ var $author$project$ElmCanvas$view = function (model) {
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text('RESET')
+										$elm$html$Html$text('全部消す')
 									]))
 							]))
 					]))
@@ -5578,7 +5627,7 @@ var $author$project$ElmCanvas$view = function (model) {
 };
 var $author$project$ElmCanvas$main = $elm$browser$Browser$sandbox(
 	{
-		init: {color: 'black', isClick: false, penNum: 10, penSize: 3, points: _List_Nil},
+		init: {color: 'black', inArea: false, isClick: false, penNum: 10, penSize: 3, points: _List_Nil},
 		update: $author$project$ElmCanvas$update,
 		view: $author$project$ElmCanvas$view
 	});

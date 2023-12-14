@@ -11,7 +11,7 @@ import Svg.Attributes exposing (cx, cy, fill, height, r, stroke, strokeWidth, vi
 
 main : Program () Model Msg
 main =
-    Browser.sandbox { init = { points = [], color = "black", penSize = 3, penNum = 10, isClick = False }, update = update, view = view }
+    Browser.sandbox { init = { points = [], color = "black", penSize = 3, penNum = 10, isClick = False, inArea = False }, update = update, view = view }
 
 
 type alias CoordModel =
@@ -33,6 +33,7 @@ type alias Model =
     , penSize : Int
     , penNum : Int
     , isClick : Bool
+    , inArea : Bool
     }
 
 
@@ -44,8 +45,8 @@ type Msg
     | MinusPenSize
     | PlusPenNum
     | MinusPenNum
-    | EnablePen
-    | DisablePen
+    | EnableIsClick
+    | DisableIsClick
 
 
 update : Msg -> Model -> Model
@@ -53,7 +54,7 @@ update msg model =
     case msg of
         AddPoint x y ->
             if model.isClick then
-                { model | points = model.points ++ addCoords model.penNum model.penNum (x + 10) (y - 78) model.color model.penSize }
+                { model | points = model.points ++ addCoords model.penNum model.penNum (x + 10) (y - 80) model.color model.penSize }
 
             else
                 model
@@ -84,10 +85,10 @@ update msg model =
             else
                 model
 
-        EnablePen ->
+        EnableIsClick ->
             { model | isClick = True }
 
-        DisablePen ->
+        DisableIsClick ->
             { model | isClick = False }
 
 
@@ -110,10 +111,10 @@ rotateCoord x y penNum =
             2 * pi / toFloat penNum
 
         rotate_x =
-            x * cos rad - y * sin rad + 300 - 300 * cos rad + 300 * sin rad
+            x * cos rad - y * sin rad + 310 - 310 * cos rad + 310 * sin rad
 
         rotate_y =
-            x * sin rad + y * cos rad + 300 - 300 * sin rad - 300 * cos rad
+            x * sin rad + y * cos rad + 310 - 310 * sin rad - 310 * cos rad
     in
     { x = rotate_x, y = rotate_y }
 
@@ -138,6 +139,7 @@ viewPoint point =
             , fill point.color
             , stroke point.color
             , strokeWidth "0"
+            , onMouseUp DisableIsClick
             ]
             []
 
@@ -147,8 +149,10 @@ view model =
     div
         []
         [ div
-            []
-            [ Html.h1 [] [ text "「千手観音キャンバス」" ]
+            [ onMouseUp DisableIsClick ]
+            [ Html.h1
+                []
+                [ text "「千手観音キャンバス」" ]
             , svg
                 [ viewBox "0 0 620 620"
                 , style "width" "605"
@@ -164,8 +168,8 @@ view model =
                             , stroke "black"
                             , strokeWidth "2"
                             , onMouseMove AddPoint
-                            , onMouseDown EnablePen
-                            , onMouseUp DisablePen
+                            , onMouseDown EnableIsClick
+                            , onMouseUp DisableIsClick
                             ]
                             []
                       ]
@@ -174,7 +178,7 @@ view model =
                 )
             , div
                 []
-                [ text "penNum "
+                [ text "同時に描画する線の数 "
                 , button
                     [ onClick MinusPenNum ]
                     [ text "-" ]
@@ -185,7 +189,7 @@ view model =
                 ]
             , div
                 []
-                [ text "penSize "
+                [ text "ペンの太さ "
                 , button
                     [ onClick MinusPenSize ]
                     [ text "-" ]
@@ -196,7 +200,8 @@ view model =
                 ]
             , div
                 []
-                [ button
+                [ text "STANDARD COLOR "
+                , button
                     [ onClick (ChangeColor "black") ]
                     [ text "BLACK" ]
                 , button
@@ -208,12 +213,24 @@ view model =
                 , button
                     [ onClick (ChangeColor "green") ]
                     [ text "GREEN" ]
+                , button
+                    [ onClick (ChangeColor "yellow") ]
+                    [ text "YELLOW" ]
+                , button
+                    [ onClick (ChangeColor "orange") ]
+                    [ text "ORANGE" ]
+                , button
+                    [ onClick (ChangeColor "purple") ]
+                    [ text "PURPLE" ]
+                , button
+                    [ onClick (ChangeColor "brown") ]
+                    [ text "BROWN" ]
                 ]
             , div
                 []
                 [ button
                     [ onClick ResetPoint ]
-                    [ text "RESET" ]
+                    [ text "全部消す" ]
                 ]
             ]
         ]
