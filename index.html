@@ -5375,7 +5375,9 @@ var $author$project$ElmCanvas$viewPoint = function (point) {
 				$elm$core$String$fromInt(point.size)),
 				$elm$svg$Svg$Attributes$fill(point.color),
 				$elm$svg$Svg$Attributes$stroke(point.color),
-				$elm$svg$Svg$Attributes$strokeWidth('0')
+				$elm$svg$Svg$Attributes$strokeWidth('0'),
+				$author$project$ElmCanvas$onMouseMove($author$project$ElmCanvas$AddPoint),
+				$elm$html$Html$Events$onMouseDown($author$project$ElmCanvas$EnableIsClick)
 			]),
 		_List_Nil) : A2(
 		$elm$svg$Svg$circle,
@@ -5388,8 +5390,7 @@ var $author$project$ElmCanvas$viewPoint = function (point) {
 				$elm$svg$Svg$Attributes$r('0'),
 				$elm$svg$Svg$Attributes$fill(point.color),
 				$elm$svg$Svg$Attributes$stroke(point.color),
-				$elm$svg$Svg$Attributes$strokeWidth('0'),
-				$elm$html$Html$Events$onMouseUp($author$project$ElmCanvas$DisableIsClick)
+				$elm$svg$Svg$Attributes$strokeWidth('0')
 			]),
 		_List_Nil);
 };

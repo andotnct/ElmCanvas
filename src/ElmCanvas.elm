@@ -129,6 +129,8 @@ viewPoint point =
             , fill point.color
             , stroke point.color
             , strokeWidth "0"
+            , onMouseMove AddPoint
+            , onMouseDown EnableIsClick
             ]
             []
 
@@ -140,7 +142,6 @@ viewPoint point =
             , fill point.color
             , stroke point.color
             , strokeWidth "0"
-            , onMouseUp DisableIsClick
             ]
             []
 
