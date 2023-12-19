@@ -4,7 +4,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Json.Decode exposing (..)
+import Json.Decode as D
 import Svg exposing (Svg, circle, rect, svg)
 import Svg.Attributes exposing (cx, cy, fill, height, r, stroke, strokeWidth, viewBox, width, x, y)
 
@@ -93,7 +93,7 @@ update msg model =
 
 
 onMouseMove function =
-    on "mousemove" (map2 function (field "clientX" float) (field "clientY" float))
+    on "mousemove" (D.map2 function (D.field "clientX" D.float) (D.field "clientY" D.float))
 
 
 addCoords : Int -> Int -> Float -> Float -> String -> Int -> List PointModel
@@ -203,30 +203,11 @@ view model =
             , div
                 []
                 [ text "ペンの色 "
-                , button
-                    [ onClick (ChangeColor "black") ]
-                    [ text "BLACK" ]
-                , button
-                    [ onClick (ChangeColor "red") ]
-                    [ text "RED" ]
-                , button
-                    [ onClick (ChangeColor "blue") ]
-                    [ text "BLUE" ]
-                , button
-                    [ onClick (ChangeColor "green") ]
-                    [ text "GREEN" ]
-                , button
-                    [ onClick (ChangeColor "yellow") ]
-                    [ text "YELLOW" ]
-                , button
-                    [ onClick (ChangeColor "orange") ]
-                    [ text "ORANGE" ]
-                , button
-                    [ onClick (ChangeColor "purple") ]
-                    [ text "PURPLE" ]
-                , button
-                    [ onClick (ChangeColor "brown") ]
-                    [ text "BROWN" ]
+                , input
+                    [ type_ "color"
+                    , onInput ChangeColor
+                    ]
+                    []
                 ]
             , div
                 []
