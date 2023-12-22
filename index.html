@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Main</title>
+  <title>ElmCanvas</title>
   <style>body { padding: 0; margin: 0; }</style>
 </head>
 
@@ -4464,6 +4464,7 @@ var $elm$core$Set$toList = function (_v0) {
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
+var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4485,7 +4486,6 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
@@ -5194,44 +5194,58 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Main$update = F2(
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$pi = _Basics_pi;
+var $elm$core$Basics$sin = _Basics_sin;
+var $author$project$ElmCanvas$rotateCoord = F3(
+	function (x, y, penNum) {
+		var rad = (2 * $elm$core$Basics$pi) / penNum;
+		var rotate_x = ((((x * $elm$core$Basics$cos(rad)) - (y * $elm$core$Basics$sin(rad))) + 310) - (310 * $elm$core$Basics$cos(rad))) + (310 * $elm$core$Basics$sin(rad));
+		var rotate_y = ((((x * $elm$core$Basics$sin(rad)) + (y * $elm$core$Basics$cos(rad))) + 310) - (310 * $elm$core$Basics$sin(rad))) - (310 * $elm$core$Basics$cos(rad));
+		return {x: rotate_x, y: rotate_y};
+	});
+var $author$project$ElmCanvas$addCoords = F6(
+	function (penNum, remainingLineCnt, x, y, color, size) {
+		return (!remainingLineCnt) ? _List_fromArray(
+			[
+				{
+				color: color,
+				coord: {x: x, y: y},
+				size: size
+			}
+			]) : A2(
+			$elm$core$List$cons,
+			{
+				color: color,
+				coord: A3($author$project$ElmCanvas$rotateCoord, x, y, penNum),
+				size: size
+			},
+			A6(
+				$author$project$ElmCanvas$addCoords,
+				penNum,
+				remainingLineCnt - 1,
+				A3($author$project$ElmCanvas$rotateCoord, x, y, penNum).x,
+				A3($author$project$ElmCanvas$rotateCoord, x, y, penNum).y,
+				color,
+				size));
+	});
+var $author$project$ElmCanvas$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'AddPoint':
-				var _v1 = $elm$core$List$head(model.coords);
-				if (_v1.$ === 'Just') {
-					var coord = _v1.a;
-					return _Utils_update(
-						model,
-						{
-							coords: _Utils_ap(
-								_List_fromArray(
-									[
-										{x: coord.x + 10.0, y: coord.y + 10.0}
-									]),
-								model.coords)
-						});
-				} else {
-					return model;
-				}
+				var x = msg.a;
+				var y = msg.b;
+				return model.isClick ? _Utils_update(
+					model,
+					{
+						points: _Utils_ap(
+							model.points,
+							A6($author$project$ElmCanvas$addCoords, model.penNum, model.penNum, x + 10, y - 80, model.color, model.penSize))
+					}) : model;
 			case 'ResetPoint':
 				return _Utils_update(
 					model,
-					{
-						coords: _List_fromArray(
-							[
-								{x: 0.0, y: 0.0}
-							])
-					});
+					{points: _List_Nil});
 			case 'ChangeColor':
 				var color = msg.a;
 				return _Utils_update(
@@ -5241,19 +5255,42 @@ var $author$project$Main$update = F2(
 				return _Utils_update(
 					model,
 					{penSize: model.penSize + 1});
+			case 'MinusPenSize':
+				return (model.penSize > 1) ? _Utils_update(
+					model,
+					{penSize: model.penSize - 1}) : model;
+			case 'PlusPenNum':
+				return _Utils_update(
+					model,
+					{penNum: model.penNum + 1});
+			case 'MinusPenNum':
+				return (model.penNum > 1) ? _Utils_update(
+					model,
+					{penNum: model.penNum - 1}) : model;
+			case 'EnableIsClick':
+				return _Utils_update(
+					model,
+					{isClick: true});
 			default:
 				return _Utils_update(
 					model,
-					{penSize: model.penSize - 1});
+					{isClick: false});
 		}
 	});
-var $author$project$Main$AddPoint = {$: 'AddPoint'};
-var $author$project$Main$ChangeColor = function (a) {
+var $author$project$ElmCanvas$AddPoint = F2(
+	function (a, b) {
+		return {$: 'AddPoint', a: a, b: b};
+	});
+var $author$project$ElmCanvas$ChangeColor = function (a) {
 	return {$: 'ChangeColor', a: a};
 };
-var $author$project$Main$MinusPenSize = {$: 'MinusPenSize'};
-var $author$project$Main$PlusPenSize = {$: 'PlusPenSize'};
-var $author$project$Main$ResetPoint = {$: 'ResetPoint'};
+var $author$project$ElmCanvas$DisableIsClick = {$: 'DisableIsClick'};
+var $author$project$ElmCanvas$EnableIsClick = {$: 'EnableIsClick'};
+var $author$project$ElmCanvas$MinusPenNum = {$: 'MinusPenNum'};
+var $author$project$ElmCanvas$MinusPenSize = {$: 'MinusPenSize'};
+var $author$project$ElmCanvas$PlusPenNum = {$: 'PlusPenNum'};
+var $author$project$ElmCanvas$PlusPenSize = {$: 'PlusPenSize'};
+var $author$project$ElmCanvas$ResetPoint = {$: 'ResetPoint'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$append = F2(
 	function (xs, ys) {
@@ -5268,7 +5305,8 @@ var $elm$core$List$concat = function (lists) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5286,41 +5324,121 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $elm$html$Html$Events$onMouseDown = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mousedown',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $author$project$ElmCanvas$onMouseMove = function (_function) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mousemove',
+		A3(
+			$elm$json$Json$Decode$map2,
+			_function,
+			A2($elm$json$Json$Decode$field, 'clientX', $elm$json$Json$Decode$float),
+			A2($elm$json$Json$Decode$field, 'clientY', $elm$json$Json$Decode$float)));
+};
+var $elm$html$Html$Events$onMouseUp = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseup',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var $author$project$Main$viewPoint = F3(
-	function (coord, color, penSize) {
-		return A2(
-			$elm$svg$Svg$circle,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$cx(
-					$elm$core$String$fromFloat(coord.x)),
-					$elm$svg$Svg$Attributes$cy(
-					$elm$core$String$fromFloat(coord.y)),
-					$elm$svg$Svg$Attributes$r(
-					$elm$core$String$fromInt(penSize)),
-					$elm$svg$Svg$Attributes$fill(color),
-					$elm$svg$Svg$Attributes$stroke(color),
-					$elm$svg$Svg$Attributes$strokeWidth('0')
-				]),
-			_List_Nil);
-	});
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $author$project$ElmCanvas$viewPoint = function (point) {
+	return (((point.coord.x - point.size) > 10) && (((point.coord.x + point.size) < 610) && (((point.coord.y - point.size) > 10) && ((point.coord.y + point.size) < 610)))) ? A2(
+		$elm$svg$Svg$circle,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$cx(
+				$elm$core$String$fromFloat(point.coord.x)),
+				$elm$svg$Svg$Attributes$cy(
+				$elm$core$String$fromFloat(point.coord.y)),
+				$elm$svg$Svg$Attributes$r(
+				$elm$core$String$fromInt(point.size)),
+				$elm$svg$Svg$Attributes$fill(point.color),
+				$elm$svg$Svg$Attributes$stroke(point.color),
+				$elm$svg$Svg$Attributes$strokeWidth('0'),
+				$author$project$ElmCanvas$onMouseMove($author$project$ElmCanvas$AddPoint),
+				$elm$html$Html$Events$onMouseDown($author$project$ElmCanvas$EnableIsClick)
+			]),
+		_List_Nil) : A2(
+		$elm$svg$Svg$circle,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$cx(
+				$elm$core$String$fromFloat(point.coord.x)),
+				$elm$svg$Svg$Attributes$cy(
+				$elm$core$String$fromFloat(point.coord.y)),
+				$elm$svg$Svg$Attributes$r('0'),
+				$elm$svg$Svg$Attributes$fill(point.color),
+				$elm$svg$Svg$Attributes$stroke(point.color),
+				$elm$svg$Svg$Attributes$strokeWidth('0')
+			]),
+		_List_Nil);
+};
 var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $author$project$Main$view = function (model) {
+var $author$project$ElmCanvas$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -5328,23 +5446,26 @@ var $author$project$Main$view = function (model) {
 			[
 				A2(
 				$elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onMouseUp($author$project$ElmCanvas$DisableIsClick)
+					]),
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$div,
+						$elm$html$Html$h1,
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('ちょっぴり不思議なお絵描きキャンバス')
+								$elm$html$Html$text('「千手観音キャンバス」')
 							])),
 						A2(
 						$elm$svg$Svg$svg,
 						_List_fromArray(
 							[
-								$elm$svg$Svg$Attributes$viewBox('0 0 770 770'),
-								$elm$svg$Svg$Attributes$width('750'),
-								$elm$svg$Svg$Attributes$height('750')
+								$elm$svg$Svg$Attributes$viewBox('0 0 620 620'),
+								A2($elm$html$Html$Attributes$style, 'width', '605'),
+								A2($elm$html$Html$Attributes$style, 'height', '605')
 							]),
 						$elm$core$List$concat(
 							_List_fromArray(
@@ -5357,134 +5478,126 @@ var $author$project$Main$view = function (model) {
 											[
 												$elm$svg$Svg$Attributes$x('10'),
 												$elm$svg$Svg$Attributes$y('10'),
-												$elm$svg$Svg$Attributes$width('750'),
-												$elm$svg$Svg$Attributes$height('750'),
+												A2($elm$html$Html$Attributes$style, 'width', '600'),
+												A2($elm$html$Html$Attributes$style, 'height', '600'),
 												$elm$svg$Svg$Attributes$fill('white'),
 												$elm$svg$Svg$Attributes$stroke('black'),
 												$elm$svg$Svg$Attributes$strokeWidth('2'),
-												$elm$html$Html$Events$onClick($author$project$Main$AddPoint)
+												$author$project$ElmCanvas$onMouseMove($author$project$ElmCanvas$AddPoint),
+												$elm$html$Html$Events$onMouseDown($author$project$ElmCanvas$EnableIsClick),
+												$elm$html$Html$Events$onMouseUp($author$project$ElmCanvas$DisableIsClick)
 											]),
 										_List_Nil)
 									]),
 									A2(
 									$elm$core$List$map,
 									function (coord) {
-										return A3($author$project$Main$viewPoint, coord, model.color, model.penSize);
+										return $author$project$ElmCanvas$viewPoint(coord);
 									},
-									model.coords)
+									model.points)
 								]))),
 						A2(
 						$elm$html$Html$div,
 						_List_Nil,
 						_List_fromArray(
 							[
+								$elm$html$Html$text('同時に描画する線の数 '),
 								A2(
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Main$ResetPoint)
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('RESET')
-									]))
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('black'))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('BLACK')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('red'))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('RED')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('blue'))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('BLUE')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Main$ChangeColor('green'))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('GREEN')
-									]))
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick($author$project$Main$MinusPenSize)
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$MinusPenNum)
 									]),
 								_List_fromArray(
 									[
 										$elm$html$Html$text('-')
 									])),
+								$elm$html$Html$text(
+								' ' + ($elm$core$String$fromInt(model.penNum) + ' ')),
 								A2(
 								$elm$html$Html$button,
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Main$PlusPenSize)
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$PlusPenNum)
 									]),
 								_List_fromArray(
 									[
 										$elm$html$Html$text('+')
 									]))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('ペンの太さ '),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$MinusPenSize)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('-')
+									])),
+								$elm$html$Html$text(
+								' ' + ($elm$core$String$fromInt(model.penSize) + ' ')),
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$PlusPenSize)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('+')
+									]))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('ペンの色 '),
+								A2(
+								$elm$html$Html$input,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$type_('color'),
+										$elm$html$Html$Events$onInput($author$project$ElmCanvas$ChangeColor)
+									]),
+								_List_Nil)
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$button,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$ElmCanvas$ResetPoint)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('全部消す')
+									]))
 							]))
 					]))
 			]));
 };
-var $author$project$Main$main = $elm$browser$Browser$sandbox(
+var $author$project$ElmCanvas$main = $elm$browser$Browser$sandbox(
 	{
-		init: {
-			color: 'black',
-			coords: _List_fromArray(
-				[
-					{x: 0.0, y: 0.0}
-				]),
-			penSize: 3
-		},
-		update: $author$project$Main$update,
-		view: $author$project$Main$view
+		init: {color: 'black', inArea: false, isClick: false, penNum: 10, penSize: 3, points: _List_Nil},
+		update: $author$project$ElmCanvas$update,
+		view: $author$project$ElmCanvas$view
 	});
-_Platform_export({'Main':{'init':$author$project$Main$main(
+_Platform_export({'ElmCanvas':{'init':$author$project$ElmCanvas$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
 
-  var app = Elm.Main.init({ node: document.getElementById("elm") });
+  var app = Elm.ElmCanvas.init({ node: document.getElementById("elm") });
 }
 catch (e)
 {
